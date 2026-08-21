@@ -409,7 +409,7 @@
       color: "var(--tab-1)",
       chapter: "Part I",
       title: "Introduction to Data Structures",
-      img: "https://github.com/SirLavz/CC2103_tutorial/tree/main/images/1Intro_DSA.jpg",
+      img: "images/1Intro_DSA.jpg",
       stamp: "Foundation before algorithms",
       narration: "Introduction to Data Structures. A data structure is simply an organized way to store data so it can be used efficiently. An abstract data type, or ADT, specifies the data and the operations allowed on it, while a data structure is the actual implementation of that ADT. Structures split into primitive types like integers and characters, and non-primitive types, which are further divided into linear structures such as arrays, lists, stacks, and queues, and non-linear structures such as trees and graphs. Along the way we meet key terms: an element is a single data item, a field is a data item within a record, a record is a group of related fields, and a node is the fundamental unit in linked structures, pairing data with a pointer. The second half of this page introduces Big O notation, which describes how an algorithm's time or space needs grow as the input grows, ranging from constant time, to logarithmic, to linear, to quadratic. And remember, efficient algorithms balance both time and space — recursion, for example, is fast to write but adds memory for every call on the stack."
     },
@@ -427,7 +427,7 @@
       color: "var(--tab-3)",
       chapter: "Part III",
       title: "Arrays in Java Programming",
-      img: "https://github.com/SirLavz/CC2103_tutorial/tree/main/images/3Arrays_Java.png",
+      img: "images/3Arrays_Java.png",
       stamp: "Quick check: nested loop over {{1,2,3},{4,5,6}} prints 1 2 3 4 5 6",
       narration: "Arrays in Java programming. The one-dimensional array declares its values directly, and you loop through it using its length property. A two-dimensional array in Java is really an array of arrays — you declare it as rows of values and read it back with a nested loop, one for the rows and one for the columns inside each row. Java also supports true multi-dimensional arrays with three or more levels, following the same nested-loop pattern. For everyday work, remember the common operations: access an element with square brackets and an index, update it the same way, find its size with the length property, and loop through it with either a standard for loop or Java's enhanced for-each loop. Two habits matter most in Java specifically: arrays have a fixed size once created, and indexing always starts at zero — step outside that range and you'll trigger an ArrayIndexOutOfBoundsException."
     },
@@ -436,7 +436,7 @@
       color: "var(--tab-4)",
       chapter: "Part IV",
       title: "Arrays in Searching Algorithms",
-      img: "https://github.com/SirLavz/CC2103_tutorial/tree/main/images/4Arrays_SearchAlgo.png",
+      img: "images/4Arrays_SearchAlgo.png",
       stamp: "Both algorithms find 55 at index 4",
       narration: "Arrays in searching algorithms. Linear search is the simplest approach — check each element one by one until you find the target, which works whether or not the array is sorted, at a time cost of O of n. Binary search is the faster alternative, but it requires the array to already be sorted. It repeatedly looks at the middle element and, since the array is sorted, throws away the half that can't possibly contain the target — for example, searching for fifty-five in a sorted array, the middle check first rules out the left half, then narrows again, landing on the answer in just a few comparisons instead of checking every element. That gives binary search a time complexity of O of log n, which is dramatically faster than linear search once the array gets large. The trade-off to remember: linear search is simple and flexible, binary search is fast but demands sorted data first."
     },
@@ -445,7 +445,7 @@
       color: "var(--tab-5)",
       chapter: "Part V",
       title: "Arrays in Sorting Algorithms — Bubble & Insertion",
-      img: "https://github.com/SirLavz/CC2103_tutorial/tree/main/images/5Arrays_SortAlgo1.jpg",
+      img: "images/5Arrays_SortAlgo1.jpg",
       stamp: "Sorting arrays is the foundation for smarter algorithms next",
       narration: "Arrays in sorting algorithms — bubble sort and insertion sort. Bubble sort works by iteratively comparing adjacent elements and swapping them whenever they're out of order, so smaller values gradually bubble toward the beginning of the array with each pass. Insertion sort takes a different approach: it maintains a sorted section at the front of the array, and one by one, takes each element from the unsorted part and inserts it into its correct position within the sorted section. Both algorithms are simple to write and easy to reason about, which makes them great starting points, and both perform well — close to O of n — on data that's already nearly sorted. But on large, unordered data, both fall to O of n squared in the worst case, which is why we reach for more advanced algorithms as the data grows."
     },
@@ -454,7 +454,7 @@
       color: "var(--tab-6)",
       chapter: "Part VI",
       title: "Advanced Sorting — Merge & Quick Sort",
-      img: "https://github.com/SirLavz/CC2103_tutorial/tree/main/images/6Arrays_SortAlgo2.jpg",
+      img: "images/6Arrays_SortAlgo2.jpg",
       stamp: "Mastering these makes you an efficient problem-solver",
       narration: "Advanced sorting algorithms — merge sort and quick sort. Merge sort is a divide-and-conquer algorithm: it recursively splits the array in half until each piece has just one element, then merges those pieces back together in sorted order. This guarantees O of n log n performance in the best, average, and worst case, though it needs extra memory to hold the merged results along the way. Quick sort takes a different strategy — it picks a pivot value, partitions the array so that smaller elements end up on one side and larger elements on the other, and then recursively sorts each partition. On average it matches merge sort's O of n log n speed, and it sorts in place with far less extra memory, but a poorly chosen pivot can degrade its worst case all the way to O of n squared. For large datasets, mastering both of these is what turns a simple sort into a genuinely efficient solution."
     }
