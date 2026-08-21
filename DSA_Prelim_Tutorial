@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Structures &amp; Algorithms — Field Notes</title>
+<style>
+  :root{
+    --ink:#1b2a2b;
+    --paper:#eee7d3;
+    --paper-dark:#e2d8bd;
+    --spine:#12201f;
+    --cover:#173d38;
+    --cover-2:#0e2523;
+    --accent:#2f7a63;
+    --accent-2:#c98a2c;
+    --code-bg:#101a19;
+    --code-line:#8fae9e;
+    --tab-1:#c98a2c;
+    --tab-2:#2f7a63;
+    --tab-3:#3a6ea5;
+    --tab-4:#9a4f3c;
+    --tab-5:#6a5a9a;
+    --tab-6:#3c8a8a;
+    --serif:"Fraunces", Georgia, serif;
+    --mono:"JetBrains Mono", "SFMono-Regular", Menlo, monospace;
+    --sans:"Inter", -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark){ }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(1200px 800px at 15% -10%, #1c3c37 0%, transparent 60%),
+      radial-gradient(1000px 700px at 110% 110%, #0f2a26 0%, transparent 55%),
+      var(--cover-2);
+    font-family:var(--sans);
+    color:var(--ink);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:28px 16px 40px;
+  }
+  .masthead{
+    text-align:center;
+    color:#eee7d3;
+    margin-bottom:18px;
+    max-width:720px;
+  }
+  .masthead .eyebrow{
+    font-family:var(--mono);
+    letter-spacing:.24em;
+    text-transform:uppercase;
+    font-size:11px;
+    color:var(--tab-2);
+    opacity:.9;
+  }
+  .masthead h1{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:clamp(28px,4vw,42px);
+    margin:6px 0 4px;
+    letter-spacing:-0.01em;
+  }
+  .masthead p{
+    margin:0;
+    font-size:13.5px;
+    color:#b9c9c2;
+  }
+
+  .stage{
+    position:relative;
+    width:min(980px, 96vw);
+  }
+
+  .book-wrap{
+    position:relative;
+    perspective:2400px;
+    filter:drop-shadow(0 30px 45px rgba(0,0,0,.45));
+  }
+
+  .book{
+    position:relative;
+    width:100%;
+    aspect-ratio:16/10;
+    background:var(--spine);
+    border-radius:6px;
+    overflow:visible;
+  }
+
+  .binding{
+    position:absolute;
+    left:0; top:0; bottom:0;
+    width:26px;
+    background:
+      repeating-linear-gradient(180deg, rgba(0,0,0,.35) 0 2px, transparent 2px 9px),
+      linear-gradient(90deg, var(--cover) 0%, var(--cover-2) 100%);
+    border-radius:6px 0 0 6px;
+    z-index:30;
+    box-shadow: inset -6px 0 10px rgba(0,0,0,.35);
+  }
+
+  .pages{
+    position:absolute;
+    inset:0 0 0 26px;
+    border-radius:0 6px 6px 0;
+    overflow:hidden;
+    transform-style:preserve-3d;
+  }
+
+  .page{
+    position:absolute;
+    inset:0;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,0) 40px),
+      var(--paper);
+    padding:14px 16px 12px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    transform-origin:left center;
+    backface-visibility:hidden;
+    opacity:0;
+    transform:rotateY(-100deg);
+    transition:transform .65s cubic-bezier(.5,0,.25,1), opacity .5s ease;
+    z-index:1;
+    overflow:auto;
+  }
+  .page-image{
+    flex:1;
+    min-height:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#fff;
+    border-radius:6px;
+    overflow:hidden;
+    box-shadow:0 2px 10px rgba(0,0,0,.12), inset 0 0 0 1px #d8cca5;
+  }
+  .page-image img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    display:block;
+  }
+  .caption-bar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:12.5px;
+    color:var(--cover);
+    padding:0 2px;
+  }
+  .caption-bar span.src{
+    font-family:var(--mono);
+    font-style:normal;
+    font-size:10px;
+    color:#8a8266;
+    white-space:nowrap;
+  }
+  .page::after{
+    content:"";
+    position:absolute; right:0; top:0; bottom:0; width:36px;
+    background:linear-gradient(90deg, transparent, rgba(0,0,0,.06));
+    pointer-events:none;
+  }
+  .page.active{
+    opacity:1;
+    transform:rotateY(0deg);
+    z-index:10;
+  }
+  .page.exit-next{ transform:rotateY(-100deg); opacity:0; z-index:5; }
+  .page.exit-prev{ transform:rotateY(100deg); opacity:0; z-index:5; }
+  .page.stage-right{ transform:rotateY(100deg); opacity:0; }
+
+  @media (prefers-reduced-motion:reduce){
+    .page{transition:opacity .35s ease; transform:none !important;}
+  }
+
+  .page-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:8px;
+    gap:12px;
+  }
+  .page-head .chapter{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--accent);
+  }
+  .page-head h2{
+    font-family:var(--serif);
+    font-size:clamp(20px,2.6vw,30px);
+    margin:2px 0 0;
+    font-weight:600;
+  }
+  .page-head .pagenum{
+    font-family:var(--mono);
+    font-size:12px;
+    color:#7a7362;
+    white-space:nowrap;
+  }
+
+  .content-grid{
+    display:grid;
+    grid-template-columns:1.1fr .9fr;
+    gap:18px;
+    flex:1;
+    min-height:0;
+  }
+  @media (max-width:720px){ .content-grid{grid-template-columns:1fr;} }
+
+  .col{display:flex; flex-direction:column; gap:10px; min-width:0;}
+
+  ul.notes{margin:0; padding-left:18px; font-size:13.5px; line-height:1.5;}
+  ul.notes li{margin-bottom:6px;}
+  ul.notes b{color:var(--cover);}
+
+  .quote{
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:14px;
+    color:var(--cover);
+    border-left:3px solid var(--accent-2);
+    padding:4px 0 4px 12px;
+  }
+
+  .code{
+    background:var(--code-bg);
+    color:#dce9e3;
+    font-family:var(--mono);
+    font-size:11.5px;
+    line-height:1.55;
+    border-radius:8px;
+    padding:12px 14px;
+    overflow:auto;
+    max-height:200px;
+    box-shadow:0 8px 18px rgba(0,0,0,.25);
+  }
+  .code .c1{color:var(--code-line);}
+  .code .c2{color:#e3b567;}
+  .code .c3{color:#7fc7ff;}
+
+  table.mini{
+    width:100%;
+    border-collapse:collapse;
+    font-size:12px;
+  }
+  table.mini th, table.mini td{
+    border:1px solid #cfc4a4;
+    padding:5px 7px;
+    text-align:left;
+  }
+  table.mini th{background:var(--paper-dark); font-family:var(--mono); font-size:10.5px; letter-spacing:.05em;}
+
+  .badges{display:flex; flex-wrap:wrap; gap:6px;}
+  .badge{
+    font-family:var(--mono);
+    font-size:10.5px;
+    padding:3px 8px;
+    border-radius:99px;
+    background:var(--cover);
+    color:#eee7d3;
+  }
+
+  .stamp{
+    align-self:flex-start;
+    margin-top:auto;
+    font-family:var(--mono);
+    font-size:10px;
+    color:#8a8266;
+    border:1px dashed #b8ac86;
+    padding:3px 8px;
+    border-radius:4px;
+  }
+
+  /* index tabs */
+  .tabs{
+    position:absolute;
+    right:-30px;
+    top:14px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    z-index:40;
+  }
+  .tab{
+    writing-mode:vertical-rl;
+    text-orientation:mixed;
+    font-family:var(--mono);
+    font-size:10.5px;
+    letter-spacing:.06em;
+    color:#fff;
+    padding:8px 5px;
+    border-radius:0 6px 6px 0;
+    cursor:pointer;
+    opacity:.72;
+    transition:opacity .2s, transform .2s;
+    box-shadow:2px 2px 5px rgba(0,0,0,.3);
+  }
+  .tab:hover{opacity:1; transform:translateX(2px);}
+  .tab.current{opacity:1; transform:translateX(4px); box-shadow:3px 3px 8px rgba(0,0,0,.4);}
+  @media (max-width:720px){
+    .tabs{right:-18px; top:8px;}
+    .tab{font-size:9px; padding:6px 4px;}
+  }
+
+  /* controls */
+  .controls{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    margin-top:22px;
+    flex-wrap:wrap;
+  }
+  button.ctrl{
+    font-family:var(--mono);
+    font-size:12px;
+    background:#eee7d3;
+    color:var(--ink);
+    border:1px solid #b8ac86;
+    border-radius:99px;
+    padding:9px 16px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:7px;
+    transition:transform .15s, background .15s;
+  }
+  button.ctrl:hover{transform:translateY(-1px); background:#fff8e8;}
+  button.ctrl:disabled{opacity:.35; cursor:not-allowed; transform:none;}
+  button.ctrl.primary{background:var(--accent); color:#fff; border-color:var(--accent);}
+  button.ctrl.primary:hover{background:#26644f;}
+  button.ctrl.speaking{background:var(--accent-2); border-color:var(--accent-2); color:#20180a;}
+
+  .dots{display:flex; gap:6px; align-items:center; margin:0 4px;}
+  .dot{width:7px; height:7px; border-radius:99px; background:#5c6a63; cursor:pointer;}
+  .dot.on{background:var(--tab-2); width:18px; border-radius:99px;}
+
+  .mic{
+    display:inline-block;
+    width:8px; height:8px;
+    border-radius:99px;
+    background:currentColor;
+  }
+  .speaking .mic{animation:pulse 1s infinite ease-in-out;}
+  @keyframes pulse{0%,100%{transform:scale(1); opacity:1;} 50%{transform:scale(1.6); opacity:.5;}}
+
+  .foot-note{
+    color:#93a39b;
+    font-size:11.5px;
+    margin-top:14px;
+    text-align:center;
+    max-width:560px;
+    font-family:var(--sans);
+  }
+  .foot-note kbd{
+    font-family:var(--mono);
+    background:#0e2523;
+    border:1px solid #294843;
+    border-radius:4px;
+    padding:1px 5px;
+    color:#cfe4dc;
+  }
+</style>
+</head>
+<body>
+
+  <div class="masthead">
+    <div class="eyebrow">SirLavz Notebook · Field Guide</div>
+    <h1>Data Structures &amp; Algorithms</h1>
+    <p>A flip-through of arrays, searching, and sorting — read it, or press play and let it read to you.</p>
+  </div>
+
+  <div class="stage">
+    <div class="book-wrap">
+      <div class="book" id="book">
+        <div class="binding" aria-hidden="true"></div>
+        <div class="tabs" id="tabs"></div>
+        <div class="pages" id="pages"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="ctrl" id="prevBtn" title="Previous page (←)">◀ Prev</button>
+    <button class="ctrl primary" id="playBtn" title="Read this page aloud"><span class="mic"></span> <span id="playLabel">Narrate page</span></button>
+    <div class="dots" id="dots"></div>
+    <button class="ctrl" id="nextBtn" title="Next page (→)">Next ▶</button>
+  </div>
+  <div class="foot-note">Use <kbd>←</kbd> <kbd>→</kbd> to flip, or click a tab on the book's edge to jump to a chapter. Narration uses your browser's built-in voice.</div>
+
+<script>
+(function(){
+  const pagesData = [
+    {
+      tab: "1 · Intro",
+      color: "var(--tab-1)",
+      chapter: "Part I",
+      title: "Introduction to Data Structures",
+      img: "images/1Intro_DSA.jpg",
+      stamp: "Foundation before algorithms",
+      narration: "Introduction to Data Structures. A data structure is simply an organized way to store data so it can be used efficiently. An abstract data type, or ADT, specifies the data and the operations allowed on it, while a data structure is the actual implementation of that ADT. Structures split into primitive types like integers and characters, and non-primitive types, which are further divided into linear structures such as arrays, lists, stacks, and queues, and non-linear structures such as trees and graphs. Along the way we meet key terms: an element is a single data item, a field is a data item within a record, a record is a group of related fields, and a node is the fundamental unit in linked structures, pairing data with a pointer. The second half of this page introduces Big O notation, which describes how an algorithm's time or space needs grow as the input grows, ranging from constant time, to logarithmic, to linear, to quadratic. And remember, efficient algorithms balance both time and space — recursion, for example, is fast to write but adds memory for every call on the stack."
+    },
+    {
+      tab: "2 · Arrays",
+      color: "var(--tab-2)",
+      chapter: "Part II",
+      title: "Arrays — 1D, 2D & Multi-dimensional",
+      img: "images/2Arrays.png",
+      stamp: "Quick check: int a[2][2]={{1,2},{3,4}}; a[1][0] → 3",
+      narration: "Arrays, in one, two, and multiple dimensions. An array is a collection of elements of the same data type, stored in contiguous memory locations. A one-dimensional array is simply a list of elements arranged in a single row, and you reach any value using one index — for example, in an array holding ten, twenty, thirty, forty, fifty, the element at index two is thirty. A two-dimensional array behaves like a table with rows and columns, so you need two indexes to reach a value. And a multi-dimensional array extends this further, with three or more dimensions — picture a cube of stacked layers, where you now need as many indexes as there are dimensions to reach a single number. The habits to keep are simple: arrays are zero-indexed, always know your dimensions, and think in terms of rows, columns, and depth as those dimensions grow."
+    },
+    {
+      tab: "3 · Java",
+      color: "var(--tab-3)",
+      chapter: "Part III",
+      title: "Arrays in Java Programming",
+      img: "images/3Arrays_Java.png",
+      stamp: "Quick check: nested loop over {{1,2,3},{4,5,6}} prints 1 2 3 4 5 6",
+      narration: "Arrays in Java programming. The one-dimensional array declares its values directly, and you loop through it using its length property. A two-dimensional array in Java is really an array of arrays — you declare it as rows of values and read it back with a nested loop, one for the rows and one for the columns inside each row. Java also supports true multi-dimensional arrays with three or more levels, following the same nested-loop pattern. For everyday work, remember the common operations: access an element with square brackets and an index, update it the same way, find its size with the length property, and loop through it with either a standard for loop or Java's enhanced for-each loop. Two habits matter most in Java specifically: arrays have a fixed size once created, and indexing always starts at zero — step outside that range and you'll trigger an ArrayIndexOutOfBoundsException."
+    },
+    {
+      tab: "4 · Search",
+      color: "var(--tab-4)",
+      chapter: "Part IV",
+      title: "Arrays in Searching Algorithms",
+      img: "images/4Arrays_SearchAlgo.png",
+      stamp: "Both algorithms find 55 at index 4",
+      narration: "Arrays in searching algorithms. Linear search is the simplest approach — check each element one by one until you find the target, which works whether or not the array is sorted, at a time cost of O of n. Binary search is the faster alternative, but it requires the array to already be sorted. It repeatedly looks at the middle element and, since the array is sorted, throws away the half that can't possibly contain the target — for example, searching for fifty-five in a sorted array, the middle check first rules out the left half, then narrows again, landing on the answer in just a few comparisons instead of checking every element. That gives binary search a time complexity of O of log n, which is dramatically faster than linear search once the array gets large. The trade-off to remember: linear search is simple and flexible, binary search is fast but demands sorted data first."
+    },
+    {
+      tab: "5 · Sort I",
+      color: "var(--tab-5)",
+      chapter: "Part V",
+      title: "Arrays in Sorting Algorithms — Bubble & Insertion",
+      img: "images/5Arrays_SortAlgo1.jpg",
+      stamp: "Sorting arrays is the foundation for smarter algorithms next",
+      narration: "Arrays in sorting algorithms — bubble sort and insertion sort. Bubble sort works by iteratively comparing adjacent elements and swapping them whenever they're out of order, so smaller values gradually bubble toward the beginning of the array with each pass. Insertion sort takes a different approach: it maintains a sorted section at the front of the array, and one by one, takes each element from the unsorted part and inserts it into its correct position within the sorted section. Both algorithms are simple to write and easy to reason about, which makes them great starting points, and both perform well — close to O of n — on data that's already nearly sorted. But on large, unordered data, both fall to O of n squared in the worst case, which is why we reach for more advanced algorithms as the data grows."
+    },
+    {
+      tab: "6 · Sort II",
+      color: "var(--tab-6)",
+      chapter: "Part VI",
+      title: "Advanced Sorting — Merge & Quick Sort",
+      img: "images/6Arrays_SortAlgo2.jpg",
+      stamp: "Mastering these makes you an efficient problem-solver",
+      narration: "Advanced sorting algorithms — merge sort and quick sort. Merge sort is a divide-and-conquer algorithm: it recursively splits the array in half until each piece has just one element, then merges those pieces back together in sorted order. This guarantees O of n log n performance in the best, average, and worst case, though it needs extra memory to hold the merged results along the way. Quick sort takes a different strategy — it picks a pivot value, partitions the array so that smaller elements end up on one side and larger elements on the other, and then recursively sorts each partition. On average it matches merge sort's O of n log n speed, and it sorts in place with far less extra memory, but a poorly chosen pivot can degrade its worst case all the way to O of n squared. For large datasets, mastering both of these is what turns a simple sort into a genuinely efficient solution."
+    }
+  ];
+
+  const pagesEl = document.getElementById('pages');
+  const tabsEl = document.getElementById('tabs');
+  const dotsEl = document.getElementById('dots');
+
+  pagesData.forEach((p, i) => {
+    const page = document.createElement('div');
+    page.className = 'page';
+    page.dataset.index = i;
+    page.innerHTML = `
+      <div class="page-head">
+        <div>
+          <div class="chapter">${p.chapter}</div>
+          <h2>${p.title}</h2>
+        </div>
+        <div class="pagenum">${String(i+1).padStart(2,'0')} / ${String(pagesData.length).padStart(2,'0')}</div>
+      </div>
+      <div class="page-image">
+        <img src="${p.img}" alt="${p.title}" loading="${i===0?'eager':'lazy'}">
+      </div>
+      <div class="caption-bar">
+        <span>${p.stamp}</span>
+        <span class="src">${p.img.split('/').pop()}</span>
+      </div>
+    `;
+    pagesEl.appendChild(page);
+
+    const tab = document.createElement('div');
+    tab.className = 'tab';
+    tab.style.background = p.color;
+    tab.textContent = p.tab;
+    tab.addEventListener('click', () => goTo(i));
+    tabsEl.appendChild(tab);
+
+    const dot = document.createElement('div');
+    dot.className = 'dot';
+    dot.addEventListener('click', () => goTo(i));
+    dotsEl.appendChild(dot);
+  });
+
+  const pageEls = Array.from(pagesEl.children);
+  const tabEls = Array.from(tabsEl.children);
+  const dotEls = Array.from(dotsEl.children);
+  let current = 0;
+  let autoAdvance = false;
+
+  function render(prevIndex, dir){
+    pageEls.forEach((el, i) => {
+      el.classList.remove('active','exit-next','exit-prev');
+      if(i === current){
+        el.classList.add('active');
+      } else if(i === prevIndex){
+        el.classList.add(dir === 'next' ? 'exit-next' : 'exit-prev');
+      }
+    });
+    tabEls.forEach((t,i)=>t.classList.toggle('current', i===current));
+    dotEls.forEach((d,i)=>d.classList.toggle('on', i===current));
+    document.getElementById('prevBtn').disabled = current === 0;
+    document.getElementById('nextBtn').disabled = current === pageEls.length - 1;
+    stopSpeaking();
+  }
+
+  function goTo(index){
+    if(index < 0 || index >= pageEls.length || index === current) return;
+    const dir = index > current ? 'next' : 'prev';
+    const prev = current;
+    current = index;
+    render(prev, dir);
+  }
+
+  document.getElementById('prevBtn').addEventListener('click', ()=>goTo(current-1));
+  document.getElementById('nextBtn').addEventListener('click', ()=>goTo(current+1));
+  window.addEventListener('keydown', (e)=>{
+    if(e.key === 'ArrowRight') goTo(current+1);
+    if(e.key === 'ArrowLeft') goTo(current-1);
+  });
+
+ // --- Voice-over ---
+  const playBtn = document.getElementById('playBtn');
+  const playLabel = document.getElementById('playLabel');
+  let utter = null;
+
+  function stopSpeaking(){
+    if('speechSynthesis' in window){ window.speechSynthesis.cancel(); }
+    playBtn.classList.remove('speaking');
+    playLabel.textContent = 'Narrate page';
+  }
+
+  function speakCurrent(){
+    if(!('speechSynthesis' in window)){
+      alert('Your browser does not support speech synthesis.');
+      return;
+    }
+    if(window.speechSynthesis.speaking){
+      stopSpeaking();
+      return;
+    }
+    
+    const text = pagesData[current].narration;
+    utter = new SpeechSynthesisUtterance(text);
+
+    // Pitch adjusted slightly lower (0.95) for a grounded male delivery
+    utter.rate = 0.85; 
+    utter.pitch = 1.6; 
+
+    const voices = window.speechSynthesis.getVoices();
+
+    // Filter hierarchy targeting Filipino (PH) male voices first
+    const preferred = 
+      // 1. Tagalog / English (Philippines) natural/male voices
+      voices.find(v => /(fil|tl|en)[-_]PH/i.test(v.lang) && /Male|Natural|Online|Google|Neural/i.test(v.name) && !/Female/i.test(v.name)) ||
+      // 2. Any Philippines locale voice
+      voices.find(v => /(fil|tl|en)[-_]PH/i.test(v.lang)) ||
+      // 3. Fallback: Clear English Male voice
+      voices.find(v => /en/i.test(v.lang) && /Male|David|George|James|Guy/i.test(v.name)) ||
+      // 4. Default fallback
+      voices.find(v => /en/i.test(v.lang));
+
+    if (preferred) utter.voice = preferred;
+
+    utter.onstart = () => { 
+      playBtn.classList.add('speaking'); 
+      playLabel.textContent = 'Stop narration'; 
+    };
+
+    utter.onend = () => {
+      stopSpeaking();
+      if (autoAdvance && current < pageEls.length - 1) {
+        goTo(current + 1);
+        setTimeout(speakCurrent, 400);
+      }
+    };
+
+    utter.onerror = stopSpeaking;
+    window.speechSynthesis.speak(utter);
+  }
+
+  playBtn.addEventListener('click', speakCurrent);
+
+  if('speechSynthesis' in window){
+    window.speechSynthesis.onvoiceschanged = () => {};
+  }
+
+  render(-1, 'next');
+})();
+</script>
+</body>
+</html>
